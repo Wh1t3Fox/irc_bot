@@ -35,7 +35,7 @@ class Bot():
         self.send_data('PONG :%s' % txt)
         
     def op_user(self):
-        self.send_data('/mode %s +o %s\r\n' % (self.CONFIG['channel'], self.CONFIG['master']))
+        self.send_data('MODE %s +o %s\r\n' % (self.CONFIG['channel'], self.CONFIG['master']))
     
     def main(self):
         while True:
@@ -47,7 +47,7 @@ class Bot():
             
             if data.find('PING') != -1:
                 self.pong(check[1])
-            elif data.find('JOIN') and user == 'Xyndei':
+            elif data.find('JOIN') and user == self.CONFIG['master']:
                 self.op_user()
     
 bot = Bot()
