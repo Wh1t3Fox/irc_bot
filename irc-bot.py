@@ -62,7 +62,7 @@ class Bot():
     
     def is_up(self, site):
         response = urllib2.urlopen('http://www.isup.me/'+site)
-        if response.read().find("It's just you."):
+        if response.read().find("It's just you.") != -1:
             self.send_data("PRIVMSG %s :\x0312[+]%s IS UP\r\n" % (self.CONFIG['channel'], site))
         else:
             self.send_data("PRIVMSG %s :\x034[+]%s IS DOWN\r\n" % (self.CONFIG['channel'], site))
