@@ -56,8 +56,12 @@ class Bot():
         self.send_data('PONG :%s' % txt)
     
         
-    def op_user(self):
-        self.send_data('MODE %s +o %s\r\n' % (self.CONFIG['channel'], self.CONFIG['master']))
+    def op_user(self, user):
+        self.send_data('MODE %s +o %s\r\n' % (self.CONFIG['channel'], user))
+    
+    
+    def deop_user(self, user):
+        self.send_data('MODE %s -o %s\r\n' % (self.CONFIG['channel'], user))
     
     
     def is_up(self, site):
@@ -92,7 +96,7 @@ class Bot():
                 if check[0].find('PING') != -1:
                     self.pong(check[1])
                 elif check[1].find('JOIN') != -1 and user == self.CONFIG['master']:
-                    self.op_user()
+                    self.op_user(self.CONFIG['master'])
                 elif check[2].find('!isup') != -1:
                     self.is_up(check[2][6:-2])
                 elif check[2].find('!commands') != -1:
