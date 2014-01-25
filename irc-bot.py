@@ -2,8 +2,10 @@
 
 import socket
 import urllib2
+import urllib
 import random
 import threading
+import json
 
 class Bot():
         
@@ -14,7 +16,8 @@ class Bot():
             'channel': '#securitygeekguys',
             'nick': '_MastersBot_',
             'ident': random.randrange(1,100),
-            'master': 'Xyndei'
+            'op': ['Xyndei'],
+            'voice': ['tmschmitt']
     }
     COLORS = {
             'white': '\x030',
@@ -64,6 +67,14 @@ class Bot():
         self.send_data('MODE %s -o %s\r\n' % (self.CONFIG['channel'], user))
     
     
+    def give_voice(self, user):
+        self.send_data('MODE %s +v %s\r\n' % (self.CONFIG['channel'], user))
+    
+    
+    def remove_voice(self, user):
+        self.send_data('MODE %s -v %s\r\n' % (self.CONFIG['channel'], user))
+    
+    
     def is_up(self, site):
         response = urllib2.urlopen('http://www.isup.me/'+site)
         if response.read().find("It's just you.") != -1:
@@ -71,6 +82,18 @@ class Bot():
         else:
             self.send_data("PRIVMSG %s :\x034[+]%s IS DOWN\r\n" % (self.CONFIG['channel'], site))
         response.close()
+    
+    
+    def get_youtube_info(self, id):
+        url = 'http://gdata.youtube.com/feeds/api/videos/%s?alt=json&v=2' % id
+        json_string = json.loads(urllib2.urlopen(url).read())
+        title = json_string['entry']['title']['$t']
+        author = json_string['entry']['author'][0]['name']['$t']
+        description = json_string['entry']['media$group']['media$description']['$t']
+        self.send_data('PRIVMSG %s :\x034Title:%s\r\n' % (self.CONFIG['channel'], title))
+        self.send_data('PRIVMSG %s :\x034Author:%s\r\n' % (self.CONFIG['channel'], author))
+        self.send_data('PRIVMSG %s :\x034Description:%s\r\n' % (self.CONFIG['channel'], description))
+        
     
     
     def auto_message(self):
@@ -91,16 +114,19 @@ class Bot():
                 check = data.split(':')
                 user = check[1].split('!')[0]
                 print check
-            
-            
+                        
                 if check[0].find('PING') != -1:
                     self.pong(check[1])
-                elif check[1].find('JOIN') != -1 and user == self.CONFIG['master']:
-                    self.op_user(self.CONFIG['master'])
+                elif check[1].find('JOIN') != -1 and user in self.CONFIG['op']:
+                    self.op_user(user)
+                elif check[1].find('JOIN') != -1 and user in self.CONFIG['voice']:
+                    self.give_voice(user)
                 elif check[2].find('!isup') != -1:
                     self.is_up(check[2][6:-2])
                 elif check[2].find('!commands') != -1:
                     self.commands()
+                elif data.find('youtube.com/watch?v=') != -1:
+                    self.get_youtube_info(data[data.find('youtube')+20:-2])
             except Exception, e:
                 print e
             
