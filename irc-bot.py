@@ -78,9 +78,9 @@ class Bot():
     def is_up(self, site):
         response = urllib2.urlopen('http://www.isup.me/'+site)
         if response.read().find("It's just you.") != -1:
-            self.send_data("PRIVMSG %s :\x0312[+]%s IS UP\r\n" % (self.CONFIG['channel'], site))
+            self.send_data("PRIVMSG %s :%s[+]%s IS UP\r\n" % (self.CONFIG['channel'], self.COLORS['blue'], site))
         else:
-            self.send_data("PRIVMSG %s :\x034[+]%s IS DOWN\r\n" % (self.CONFIG['channel'], site))
+            self.send_data("PRIVMSG %s :%s[+]%s IS DOWN\r\n" % (self.CONFIG['channel'], self.COLORS['red'], site))
         response.close()
     
     
@@ -90,20 +90,20 @@ class Bot():
         title = json_string['entry']['title']['$t']
         author = json_string['entry']['author'][0]['name']['$t']
         description = json_string['entry']['media$group']['media$description']['$t']
-        self.send_data('PRIVMSG %s :\x034Title:%s\r\n' % (self.CONFIG['channel'], title))
-        self.send_data('PRIVMSG %s :\x034Author:%s\r\n' % (self.CONFIG['channel'], author))
-        self.send_data('PRIVMSG %s :\x034Description:%s\r\n' % (self.CONFIG['channel'], description))
+        self.send_data('PRIVMSG %s :%sTitle:%s\r\n' % (self.CONFIG['channel'], self.COLORS['red'], title))
+        self.send_data('PRIVMSG %s :%sAuthor:%s\r\n' % (self.CONFIG['channel'], self.COLORS['red'], author))
+        self.send_data('PRIVMSG %s :%sDescription:%s\r\n' % (self.CONFIG['channel'], self.COLORS['red'], description))
         
     
     
     def auto_message(self):
         threading.Timer(300, self.auto_message).start()
-        self.send_data("PRIVMSG %s :\x039[+]Type !commands to view the options\r\n" % self.CONFIG['channel'])
+        self.send_data("PRIVMSG %s :%s[+]Type !commands to view the options\r\n" % (self.CONFIG['channel'], self.COLORS['lime']))
     
     
     def commands(self):
-        self.send_data("PRIVMSG %s :\x037[+]All commands start with '!'\r\n" % self.CONFIG['channel'])
-        self.send_data("PRIVMSG %s :\x037[+]isup to view a website status\r\n" % self.CONFIG['channel'])
+        self.send_data("PRIVMSG %s :%s[+]All commands start with '!'\r\n" % (self.CONFIG['channel'], self.COLORS['olive']))
+        self.send_data("PRIVMSG %s :%s[+]isup to view a website status\r\n" % (self.CONFIG['channel'], self.COLORS['olive']))
     
     
     def main(self):
@@ -123,7 +123,7 @@ class Bot():
                     self.give_voice(user)
                 elif check[2].find('!isup') != -1:
                     self.is_up(check[2][6:-2])
-                elif check[2].find('!commands') != -1:
+                elif data.find('!commands') != -1:
                     self.commands()
                 elif data.find('youtube.com/watch?v=') != -1:
                     self.get_youtube_info(data[data.find('youtube')+20:-2])
