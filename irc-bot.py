@@ -6,6 +6,7 @@ import urllib
 import random
 import threading
 import json
+import sys
 
 class Bot():
         
@@ -41,6 +42,7 @@ class Bot():
     
     def __init__(self):        
         self.SERVER.connect((self.CONFIG['server'], self.CONFIG['port']))
+        self.thread = None
         self.login(self.CONFIG)
         self.main()
     
@@ -97,7 +99,8 @@ class Bot():
     
     
     def auto_message(self):
-        threading.Timer(300, self.auto_message).start()
+        self.thread = threading.Timer(30, self.auto_message)
+        self.thread.start()
         self.send_data("PRIVMSG %s :%s[+]Type !commands to view the options\r\n" % (self.CONFIG['channel'], self.COLORS['lime']))
     
     
@@ -127,6 +130,11 @@ class Bot():
                     self.commands()
                 elif data.find('youtube.com/watch?v=') != -1:
                     self.get_youtube_info(data[data.find('youtube')+20:-2])
+            except IndexError:
+                pass
+            except KeyboardInterrupt:
+                self.thread.cancel()
+                sys.exit()
             except Exception, e:
                 print e
             
