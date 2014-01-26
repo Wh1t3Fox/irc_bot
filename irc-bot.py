@@ -42,7 +42,7 @@ class Bot():
     
     
     def __init__(self):        
-        logging.basicConfig(filename='ircbot.log', level=logging.DEBUG)
+        logging.basicConfig(format='%(levelname)s:%(asctime)s %(message)s', filename='ircbot.log', level=logging.DEBUG)
         self.SERVER.connect((self.CONFIG['server'], self.CONFIG['port']))
         self.thread = None
         self.login(self.CONFIG)
