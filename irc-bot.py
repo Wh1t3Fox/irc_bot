@@ -5,6 +5,7 @@ import urllib2
 import urllib
 import random
 import threading
+import logging
 import json
 import sys
 
@@ -41,6 +42,7 @@ class Bot():
     
     
     def __init__(self):        
+        logging.basicConfig(filename='ircbot.log', level=logging.DEBUG)
         self.SERVER.connect((self.CONFIG['server'], self.CONFIG['port']))
         self.thread = None
         self.login(self.CONFIG)
@@ -116,7 +118,7 @@ class Bot():
                 data = self.SERVER.recv(1024)
                 check = data.split(':')
                 user = check[1].split('!')[0]
-                print check
+                logging.info(data)
                         
                 if check[0].find('PING') != -1:
                     self.pong(check[1])
@@ -136,7 +138,7 @@ class Bot():
                 self.thread.cancel()
                 sys.exit()
             except Exception, e:
-                print e
+                logging.warning(e)
             
             
 bot = Bot()
