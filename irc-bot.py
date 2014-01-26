@@ -99,7 +99,7 @@ class Bot():
     
     
     def auto_message(self):
-        self.thread = threading.Timer(30, self.auto_message)
+        self.thread = threading.Timer(300, self.auto_message)
         self.thread.start()
         self.send_data("PRIVMSG %s :%s[+]Type !commands to view the options\r\n" % (self.CONFIG['channel'], self.COLORS['lime']))
     
