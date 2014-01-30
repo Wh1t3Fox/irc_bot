@@ -1,16 +1,16 @@
 #!/usr/bin/env python
 
 import socket
-import urllib2
-import urllib
+import requests
 import random
 import threading
 import logging
 import json
 import sys
+                 
 
 class Bot():
-        
+    
     SERVER = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     CONFIG = {
             'server': 'irc.freenode.net',
@@ -18,7 +18,7 @@ class Bot():
             'channel': '#securitygeekguys',
             'nick': '_MastersBot_',
             'ident': random.randrange(1,100),
-            'op': ['Xyndei'],
+            'op': ['Wh1t3Fox'],
             'voice': ['tmschmitt']
     }
     COLORS = {
@@ -43,7 +43,6 @@ class Bot():
     
     def __init__(self):        
         logging.basicConfig(format='%(levelname)s:%(asctime)s %(message)s', filename='ircbot.log', level=logging.DEBUG)
-        self.SERVER.connect((self.CONFIG['server'], self.CONFIG['port']))
         self.thread = None
         self.login(self.CONFIG)
         self.main()
@@ -80,17 +79,17 @@ class Bot():
     
     
     def is_up(self, site):
-        response = urllib2.urlopen('http://www.isup.me/'+site)
-        if response.read().find("It's just you.") != -1:
+        response = requests.get('http://www.isup.me/'+site).text
+        if response.find("It's just you.") != -1:
             self.send_data("PRIVMSG %s :%s[+]%s IS UP\r\n" % (self.CONFIG['channel'], self.COLORS['blue'], site))
         else:
             self.send_data("PRIVMSG %s :%s[+]%s IS DOWN\r\n" % (self.CONFIG['channel'], self.COLORS['red'], site))
-        response.close()
+        
     
     
     def get_youtube_info(self, id):
         url = 'http://gdata.youtube.com/feeds/api/videos/%s?alt=json&v=2' % id
-        json_string = json.loads(urllib2.urlopen(url).read())
+        json_string = requests.get(url).json()
         title = json_string['entry']['title']['$t']
         author = json_string['entry']['author'][0]['name']['$t']
         description = json_string['entry']['media$group']['media$description']['$t']
