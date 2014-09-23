@@ -1,6 +1,8 @@
-#!/usr/bin/env python
+#!/usr/bin/env python2
 
 import socket
+import hashlib
+import subprocess
 import requests
 import random
 import threading
@@ -14,11 +16,11 @@ class Bot():
     CONFIG = {
             'server': 'irc.freenode.net',
             'port': 6667,
-            'channel': '#WhiteHatWarriors',
-            'nick': '_MastersBot_',
+            'channel': '#b01lerse',
+            'nick': '_Wh1t3FoxBot_',
             'ident': random.randrange(1,100),
-            'op': ['Wh1t3Fox'],
-            'voice': ['tmschmitt']
+            'op': [],
+            'voice': []
     }
     COLORS = {
             'white': '\x030',
@@ -107,17 +109,30 @@ class Bot():
 
     def commands(self):
         self.send_data("PRIVMSG %s :%s[+]All commands start with '!'\r\n" % (self.CONFIG['channel'], self.COLORS['olive']))
-        self.send_data("PRIVMSG %s :%s[+]isup to view a website status\r\n" % (self.CONFIG['channel'], self.COLORS['olive']))
+        self.send_data("PRIVMSG %s :%s[+]!isup to view a website status\r\n" % (self.CONFIG['channel'], self.COLORS['olive']))
+        self.send_data("PRIVMSG %s :%s[+]!fortune to view a fortune msg\r\n" % (self.CONFIG['channel'], self.COLORS['olive']))
+        self.send_data("PRIVMSG %s :%s[+]!hash <algorith> <input>\r\n" % (self.CONFIG['channel'], self.COLORS['olive']))
 
+    def get_fortune(self):
+        proc = subprocess.Popen("fortune", stdout=subprocess.PIPE, shell=True)
+        data = proc.communicate()[0]
+        data = data.replace("\n", " ")
+        self.send_data("PRIVMSG %s : %s[+] %s\r\n" % (self.CONFIG['channel'], self.COLORS['blue'], data))
+
+    def compute_hash(self, algo, data):
+        h = hashlib.new(algo)
+        h.update(data)
+        out = h.hexdigest()
+        self.send_data("PRIVMSG %s : %s[+] %s\r\n" % (self.CONFIG['channel'], self.COLORS['blue'], out))
 
     def main(self):
-        self.auto_message()
         while True:
             try:
                 data = self.SERVER.recv(1024)
                 check = data.split(':')
                 user = check[1].split('!')[0]
                 logging.debug(data)
+                print check
 
                 if check[0].find('PING') != -1:
                     self.pong(check[1])
@@ -127,8 +142,14 @@ class Bot():
                     self.give_voice(user)
                 elif check[2].find('!isup') != -1:
                     self.is_up(check[2][6:-2])
+                elif check[2].find('!hash') != -1:
+                    args = check[2].split(' ')
+                    s = ' '.join(args[2:])
+                    self.compute_hash(args[1], s[:-2])
                 elif data.find('!commands') != -1:
                     self.commands()
+                elif data.find('!fortune') != -1:
+                    self.get_fortune()
                 elif data.find('youtube.com/watch?v=') != -1:
                     self.get_youtube_info(data[data.find('youtube')+20:-2])
             except IndexError:
