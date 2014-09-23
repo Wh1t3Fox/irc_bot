@@ -16,7 +16,7 @@ class Bot():
     CONFIG = {
             'server': 'irc.freenode.net',
             'port': 6667,
-            'channel': '#b01lerse',
+            'channel': '#b01lers',
             'nick': '_Wh1t3FoxBot_',
             'ident': random.randrange(1,100),
             'op': [],
@@ -132,7 +132,6 @@ class Bot():
                 check = data.split(':')
                 user = check[1].split('!')[0]
                 logging.debug(data)
-                print check
 
                 if check[0].find('PING') != -1:
                     self.pong(check[1])
